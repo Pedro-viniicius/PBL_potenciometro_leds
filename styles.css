@@ -26,33 +26,39 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body {
-  height: 100%;
+html {
+  /* a página inteira rola, encaixando slide a slide (scroll snap).
+     TODOS os slides ficam visíveis ao rolar — não dependem de JavaScript. */
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+  scroll-padding-top: 0;
+}
+body {
   font-family: var(--fonte);
   color: var(--texto);
   background: var(--fundo);
-  scroll-behavior: smooth;
 }
 
 /* ----------------------------- Deck ------------------------------------- */
 .deck {
-  height: 100vh;
-  overflow: hidden;
   position: relative;
 }
 
 .slide {
-  display: none;
-  height: 100vh;
-  padding: 4vh 6vw 12vh;
-  overflow-y: auto;
-  animation: aparecer 0.45s ease;
+  min-height: 100vh;
+  padding: 5vh 6vw 14vh;       /* espaço extra embaixo p/ a barra fixa */
+  scroll-snap-align: start;
+  border-bottom: 2px solid rgba(13, 60, 117, 0.10);
 }
-.slide.ativo { display: block; }
+/* leve realce do slide que está em foco (apenas estético, via JS) */
+.slide.ativo { background-color: rgba(255, 255, 255, 0.35); }
+.capa.ativo { background-color: transparent; }
 
+/* animação suave de entrada (só transform — NUNCA esconde o conteúdo) */
+.slide { animation: aparecer 0.5s ease both; }
 @keyframes aparecer {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(14px); }
+  to   { transform: translateY(0); }
 }
 
 .slide-inner {

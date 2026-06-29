@@ -12,9 +12,9 @@ Todo o conteúdo está em **português do Brasil (pt-BR)**.
 
 | Arquivo | O que é |
 |---|---|
-| `index.html` | **Slides da aula** (apresentação para projetar). Abre no navegador. |
-| `styles.css` | Estilo visual dos slides. |
-| `script.js` | Navegação dos slides (setas, toque, barra de progresso). |
+| `index.html` | **Slides da aula** (apresentação para projetar). **Arquivo único e autossuficiente** — o CSS e o JavaScript já estão embutidos dentro dele, então funciona sozinho com um duplo clique, em qualquer navegador. |
+| `styles.css` | Cópia editável do estilo (apenas para manutenção — já está embutida no `index.html`). |
+| `script.js` | Cópia editável da navegação (apenas para manutenção — já está embutida no `index.html`). |
 | `roteiro-professor.md` | **Roteiro do professor**: o que falar, o que os alunos fazem, pausas, intervenções. |
 | `dever-casa-robotica.html` | Versão imprimível do **dever de casa** (origem do PDF). |
 | `dever-casa-robotica.pdf` | **Dever de casa** pronto para imprimir (frente e verso, 2 páginas, fonte 16). |
@@ -30,13 +30,36 @@ Todo o conteúdo está em **português do Brasil (pt-BR)**.
 1. Dê um duplo clique em **`index.html`** (abre no navegador padrão), **ou**
 2. Clique com o botão direito → "Abrir com" → seu navegador.
 
-**Navegação:**
-- Setas **← →** do teclado, ou botões **Anterior / Próximo** na barra inferior.
-- **Barra de espaço** avança; **Home/End** vão ao primeiro/último slide.
+**Navegação (todos os slides ficam visíveis — é só rolar a página):**
+- **Role a página para baixo** com o mouse ou o touchpad para ver todos os 27 slides, um a um (eles "encaixam" na tela).
+- Também dá para usar as setas **← → ↑ ↓**, **Page Up/Down**, ou os botões **Anterior / Próximo** na barra inferior.
+- **Home/End** vão ao primeiro/último slide.
 - **F** entra/sai da tela cheia (ideal para projetar).
-- No celular/tablet: **deslize** o dedo para os lados.
+- No celular/tablet: **deslize** o dedo para cima/baixo.
 
-Não precisa de internet nem de instalar nada — funciona offline.
+> Como os slides não ficam mais escondidos, **mesmo que algo dê errado com a navegação, você sempre consegue ver todo o conteúdo rolando a página.**
+
+Não precisa de internet nem de instalar nada — funciona offline. Como o
+`index.html` é **autossuficiente** (CSS e JS embutidos), você pode até copiar
+**só esse arquivo** para um pen drive ou outro computador que ele continua
+funcionando sozinho.
+
+> **Observação para edição:** se quiser alterar o visual (`styles.css`) ou a
+> navegação (`script.js`), edite esses arquivos e depois rode o comando abaixo
+> para reembutir tudo no `index.html`:
+>
+> ```bash
+> python3 - <<'PY'
+> html = open('index.html', encoding='utf-8').read()
+> import re
+> css = open('styles.css', encoding='utf-8').read()
+> js  = open('script.js',  encoding='utf-8').read()
+> html = re.sub(r'<style>.*?</style>', '<style>\n'+css+'\n</style>', html, count=1, flags=re.S)
+> html = re.sub(r'<script>\n.*?</script>', '<script>\n'+js+'\n</script>', html, count=1, flags=re.S)
+> open('index.html','w',encoding='utf-8').write(html)
+> print('index.html atualizado')
+> PY
+> ```
 
 ---
 

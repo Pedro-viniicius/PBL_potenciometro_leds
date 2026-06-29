@@ -4,7 +4,247 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aula de Robótica — 8 LEDs controlados por potenciômetro</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+/* ==========================================================================
+   Aula de Robótica — 8 LEDs controlados por potenciômetro
+   Folha de estilo dos slides (projeção em sala de aula)
+   ========================================================================== */
+
+:root {
+  --azul: #1565c0;
+  --azul-claro: #42a5f5;
+  --azul-escuro: #0d3c75;
+  --verde: #2e7d32;
+  --verde-claro: #66bb6a;
+  --laranja: #ef6c00;
+  --amarelo: #fbc02d;
+  --vermelho: #c62828;
+  --roxo: #6a1b9a;
+  --cinza: #455a64;
+  --cinza-claro: #eceff1;
+  --texto: #1a2530;
+  --fundo: #f4f7fb;
+  --branco: #ffffff;
+  --sombra: 0 10px 30px rgba(13, 60, 117, 0.12);
+  --sombra-forte: 0 18px 50px rgba(13, 60, 117, 0.22);
+  --radius: 18px;
+  --fonte: "Segoe UI", "Trebuchet MS", system-ui, -apple-system, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  /* a página inteira rola, encaixando slide a slide (scroll snap).
+     TODOS os slides ficam visíveis ao rolar — não dependem de JavaScript. */
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+  scroll-padding-top: 0;
+}
+body {
+  font-family: var(--fonte);
+  color: var(--texto);
+  background: var(--fundo);
+}
+
+/* ----------------------------- Deck ------------------------------------- */
+.deck {
+  position: relative;
+}
+
+.slide {
+  min-height: 100vh;
+  padding: 5vh 6vw 14vh;       /* espaço extra embaixo p/ a barra fixa */
+  scroll-snap-align: start;
+  border-bottom: 2px solid rgba(13, 60, 117, 0.10);
+}
+/* leve realce do slide que está em foco (apenas estético, via JS) */
+.slide.ativo { background-color: rgba(255, 255, 255, 0.35); }
+.capa.ativo { background-color: transparent; }
+
+/* animação suave de entrada (só transform — NUNCA esconde o conteúdo) */
+.slide { animation: aparecer 0.5s ease both; }
+@keyframes aparecer {
+  from { transform: translateY(14px); }
+  to   { transform: translateY(0); }
+}
+
+.slide-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* ----------------------------- Tipografia ------------------------------- */
+.slide h1 { font-size: clamp(2.2rem, 4.5vw, 3.8rem); line-height: 1.1; color: var(--azul-escuro); }
+.slide h2 {
+  font-size: clamp(1.7rem, 3.2vw, 2.6rem);
+  color: var(--azul);
+  margin-bottom: 0.6em;
+  border-bottom: 5px solid var(--azul-claro);
+  padding-bottom: 0.25em;
+  display: inline-block;
+}
+.slide h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); color: var(--azul-escuro); margin: 0.6em 0 0.3em; }
+.slide p, .slide li { font-size: clamp(1.05rem, 1.6vw, 1.35rem); line-height: 1.55; }
+.slide ul, .slide ol { margin: 0.4em 0 0.4em 1.4em; }
+.slide li { margin-bottom: 0.4em; }
+.lead { font-size: clamp(1.2rem, 2vw, 1.6rem) !important; color: var(--cinza); }
+strong { color: var(--azul-escuro); }
+.destaque { background: linear-gradient(transparent 55%, #ffe082 55%); padding: 0 .15em; font-weight: 700; }
+
+/* ----------------------------- Capa ------------------------------------- */
+.capa {
+  background: linear-gradient(135deg, var(--azul-escuro), var(--azul-claro));
+  color: var(--branco);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+}
+.capa .slide-inner { color: var(--branco); }
+.capa h1 { color: var(--branco); }
+.capa .badge {
+  display: inline-block; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.5);
+  padding: .4em 1.2em; border-radius: 999px; font-weight: 700; letter-spacing: 1px;
+  font-size: 1.1rem; margin-bottom: 1.5rem;
+}
+.capa .subtitulo { font-size: clamp(1.2rem, 2.4vw, 1.9rem); margin-top: 1rem; opacity: .95; }
+.capa .meta { margin-top: 2rem; font-size: 1.1rem; opacity: .9; }
+
+/* ----------------------------- Cards ------------------------------------ */
+.grid { display: grid; gap: 1.2rem; margin-top: 1.2rem; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--branco); border-radius: var(--radius); padding: 1.3rem 1.5rem;
+  box-shadow: var(--sombra); border-top: 6px solid var(--azul-claro);
+}
+.card.verde { border-top-color: var(--verde-claro); }
+.card.laranja { border-top-color: var(--laranja); }
+.card.roxo { border-top-color: var(--roxo); }
+.card.amarelo { border-top-color: var(--amarelo); }
+.card.vermelho { border-top-color: var(--vermelho); }
+.card .icone { font-size: 2.6rem; display: block; margin-bottom: .3rem; }
+.card h3 { margin-top: 0; }
+
+/* ----------------------------- Callouts --------------------------------- */
+.callout {
+  border-radius: 14px; padding: 1rem 1.3rem; margin: 1rem 0;
+  display: flex; gap: .9rem; align-items: flex-start; font-size: 1.15rem;
+}
+.callout .ic { font-size: 1.8rem; line-height: 1; }
+.callout.info { background: #e3f2fd; border-left: 7px solid var(--azul); }
+.callout.ok { background: #e8f5e9; border-left: 7px solid var(--verde); }
+.callout.aviso { background: #fff8e1; border-left: 7px solid var(--amarelo); }
+.callout.erro { background: #ffebee; border-left: 7px solid var(--vermelho); }
+.callout.dica { background: #f3e5f5; border-left: 7px solid var(--roxo); }
+
+/* ----------------------------- Código ----------------------------------- */
+pre, code { font-family: "Consolas", "Courier New", monospace; }
+pre {
+  background: #0f1f33; color: #e6edf3; border-radius: 14px; padding: 1.1rem 1.3rem;
+  overflow-x: auto; font-size: clamp(.95rem, 1.5vw, 1.2rem); line-height: 1.5; margin: 1rem 0;
+  box-shadow: var(--sombra);
+}
+pre .cmt { color: #7ee787; font-style: italic; }
+pre .kw  { color: #79c0ff; font-weight: bold; }
+pre .fn  { color: #ffa657; }
+pre .num { color: #ff9e64; }
+pre .str { color: #a5d6ff; }
+code.inline { background: var(--cinza-claro); color: var(--azul-escuro); padding: .12em .45em; border-radius: 6px; font-weight: 700; font-size: .95em; }
+
+/* ----------------------------- Tabela ----------------------------------- */
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: var(--branco); border-radius: 12px; overflow: hidden; box-shadow: var(--sombra); }
+th, td { padding: .8rem 1rem; text-align: left; font-size: 1.1rem; border-bottom: 1px solid #e0e6ec; }
+th { background: var(--azul); color: var(--branco); }
+tr:nth-child(even) td { background: #f7fafd; }
+
+/* ----------------------------- Pílulas de vocabulário ------------------- */
+.pilulas { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.pilula { background: var(--azul); color: #fff; border-radius: 999px; padding: .35em 1em; font-weight: 700; font-size: 1.05rem; }
+.pilula.v { background: var(--verde); }
+.pilula.l { background: var(--laranja); }
+.pilula.r { background: var(--roxo); }
+
+/* ----------------------------- Diagrama Arduino ------------------------- */
+.placa {
+  background: #0b6e4f; border-radius: 14px; padding: 1.2rem; color: #fff; margin: 1rem 0;
+  box-shadow: var(--sombra); position: relative;
+}
+.placa .titulo-placa { font-weight: 800; letter-spacing: 2px; font-size: 1.3rem; margin-bottom: .8rem; }
+.fileira { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+.pino {
+  background: #063d2c; border: 1px solid #0e9d70; border-radius: 8px; padding: .45em .7em;
+  font-size: .95rem; font-weight: 700; min-width: 48px; text-align: center;
+}
+.pino.dig { background: #0d47a1; border-color: #42a5f5; }
+.pino.ana { background: #ef6c00; border-color: #ffb74d; }
+.pino.pwr { background: #b71c1c; border-color: #ef9a9a; }
+.pino.gnd { background: #263238; border-color: #78909c; }
+
+/* ----------------------------- LEDs visuais ----------------------------- */
+.barra-leds { display: flex; gap: .6rem; justify-content: center; margin: 1.2rem 0; flex-wrap: wrap; }
+.led {
+  width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: #fff; background: #455a64; box-shadow: inset 0 -4px 8px rgba(0,0,0,.3);
+}
+.led.on { background: radial-gradient(circle at 35% 30%, #fff59d, #fbc02d 60%, #f57f17); color: #5d4037; box-shadow: 0 0 18px #fdd835; }
+
+/* ----------------------------- Potenciômetro ---------------------------- */
+.pot-demo { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; justify-content: center; margin: 1.2rem 0; }
+.knob {
+  width: 130px; height: 130px; border-radius: 50%; background: conic-gradient(var(--azul) 0 70%, #cfd8dc 70% 100%);
+  position: relative; box-shadow: var(--sombra-forte);
+}
+.knob::after { content: ""; position: absolute; top: 12px; left: 50%; width: 8px; height: 42px; background: #fff; border-radius: 4px; transform: translateX(-50%); }
+.knob .centro { position: absolute; inset: 30px; border-radius: 50%; background: #263238; }
+
+/* ----------------------------- Roteiro / passos ------------------------- */
+.passos { counter-reset: passo; margin-top: 1rem; }
+.passo {
+  display: flex; gap: 1rem; align-items: flex-start; background: var(--branco); border-radius: 12px;
+  padding: .9rem 1.2rem; margin-bottom: .7rem; box-shadow: var(--sombra); border-left: 6px solid var(--azul-claro);
+}
+.passo::before {
+  counter-increment: passo; content: counter(passo);
+  background: var(--azul); color: #fff; font-weight: 800; min-width: 42px; height: 42px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+}
+.passo strong { display: block; font-size: 1.2rem; }
+
+/* ----------------------------- Navegação -------------------------------- */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
+  background: rgba(13, 60, 117, .96); color: #fff; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.4rem; z-index: 50; box-shadow: 0 -4px 18px rgba(0,0,0,.18);
+}
+.nav button {
+  background: #fff; color: var(--azul-escuro); border: none; border-radius: 10px; padding: .6em 1.2em;
+  font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: transform .12s, background .12s;
+}
+.nav button:hover { transform: translateY(-2px); background: #ffe082; }
+.nav button:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.nav .centro-nav { display: flex; align-items: center; gap: 1rem; font-weight: 700; }
+.nav .titulo-curto { font-size: 1.05rem; opacity: .9; }
+.contador { background: rgba(255,255,255,.18); padding: .3em .9em; border-radius: 999px; font-size: 1.05rem; }
+
+.progresso { position: fixed; top: 0; left: 0; height: 6px; background: var(--amarelo); z-index: 60; transition: width .3s ease; }
+
+.dica-teclado { position: fixed; bottom: 74px; right: 14px; background: rgba(0,0,0,.6); color:#fff; font-size:.8rem; padding:.4em .7em; border-radius:8px; z-index:40; opacity:.7; }
+
+/* ----------------------------- Utilidades ------------------------------- */
+.duas-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; align-items: start; }
+@media (max-width: 900px) { .duas-colunas { grid-template-columns: 1fr; } }
+.center { text-align: center; }
+.mt { margin-top: 1.2rem; }
+.tag-secao { display:inline-block; background: var(--cinza-claro); color: var(--cinza); font-weight:800; letter-spacing:1px; padding:.25em .9em; border-radius:8px; font-size:.95rem; text-transform: uppercase; margin-bottom:.6rem; }
+
+/* impressão dos slides (opcional) */
+@media print {
+  .nav, .progresso, .dica-teclado { display: none !important; }
+  .slide { display: block !important; height: auto; page-break-after: always; }
+}
+
+</style>
 </head>
 <body>
 
@@ -618,7 +858,7 @@ leitura = <span class="num">512</span>;        <span class="cmt">// guarda 512 d
 </div>
 
 <!-- ============ NAVEGAÇÃO ============ -->
-<div class="dica-teclado">Use ← → ou as setas do teclado · F = tela cheia</div>
+<div class="dica-teclado">⬇️ Role a página para ver todos os slides · setas ← → também funcionam · F = tela cheia</div>
 <nav class="nav">
   <button id="btnPrev">◀ Anterior</button>
   <div class="centro-nav">
@@ -628,6 +868,119 @@ leitura = <span class="num">512</span>;        <span class="cmt">// guarda 512 d
   <button id="btnNext">Próximo ▶</button>
 </nav>
 
-<script src="script.js"></script>
+<script>
+/* =========================================================================
+   Navegação dos slides — Aula de Robótica (8 LEDs + potenciômetro)
+
+   IMPORTANTE: todos os slides ficam VISÍVEIS o tempo todo (basta rolar a
+   página). Este script é só um BÔNUS: barra de progresso, contador, botões
+   Anterior/Próximo e setas do teclado. Se o JavaScript não rodar, a aula
+   continua 100% acessível rolando a página.
+   ========================================================================= */
+(function () {
+  "use strict";
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  if (!slides.length) return;
+
+  var elAtual = document.getElementById("atual");
+  var elTotal = document.getElementById("total");
+  var elTitulo = document.getElementById("tituloSlide");
+  var elProgresso = document.getElementById("progresso");
+  var btnPrev = document.getElementById("btnPrev");
+  var btnNext = document.getElementById("btnNext");
+
+  var atual = 0;
+  if (elTotal) elTotal.textContent = slides.length;
+
+  // -- rola suavemente até um slide --
+  function irPara(indice) {
+    indice = Math.max(0, Math.min(indice, slides.length - 1));
+    slides[indice].scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // -- atualiza contador / título / progresso / realce --
+  function atualizarPainel(indice) {
+    atual = indice;
+    slides.forEach(function (s, i) { s.classList.toggle("ativo", i === indice); });
+    if (elAtual) elAtual.textContent = indice + 1;
+    if (elTitulo) elTitulo.textContent = slides[indice].getAttribute("data-titulo") || "";
+    if (elProgresso) elProgresso.style.width = ((indice + 1) / slides.length * 100) + "%";
+    if (btnPrev) btnPrev.disabled = indice === 0;
+    if (btnNext) btnNext.disabled = indice === slides.length - 1;
+  }
+
+  // -- descobre qual slide está em foco usando IntersectionObserver --
+  if ("IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (e) {
+        if (e.isIntersecting) {
+          var i = slides.indexOf(e.target);
+          if (i >= 0) atualizarPainel(i);
+        }
+      });
+    }, { threshold: 0.55 });
+    slides.forEach(function (s) { obs.observe(s); });
+  }
+
+  // -- reforço: também detecta o slide em foco pela posição da rolagem
+  //    (garante que o contador e a barra de progresso nunca fiquem presos) --
+  var emEspera = false;
+  function aoRolar() {
+    if (emEspera) return;
+    emEspera = true;
+    requestAnimationFrame(function () {
+      emEspera = false;
+      var meio = window.innerHeight / 2;
+      var melhor = 0, menorDist = Infinity;
+      for (var i = 0; i < slides.length; i++) {
+        var r = slides[i].getBoundingClientRect();
+        var centro = r.top + r.height / 2;
+        var dist = Math.abs(centro - meio);
+        if (dist < menorDist) { menorDist = dist; melhor = i; }
+      }
+      if (melhor !== atual) atualizarPainel(melhor);
+    });
+  }
+  window.addEventListener("scroll", aoRolar, { passive: true });
+
+  // -- botões --
+  if (btnNext) btnNext.addEventListener("click", function () { irPara(atual + 1); });
+  if (btnPrev) btnPrev.addEventListener("click", function () { irPara(atual - 1); });
+
+  // -- teclado: setas, espaço, Home/End, F (tela cheia) --
+  document.addEventListener("keydown", function (e) {
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+      case "PageDown":
+        e.preventDefault(); irPara(atual + 1); break;
+      case "ArrowLeft":
+      case "ArrowUp":
+      case "PageUp":
+        e.preventDefault(); irPara(atual - 1); break;
+      case "Home":
+        e.preventDefault(); irPara(0); break;
+      case "End":
+        e.preventDefault(); irPara(slides.length - 1); break;
+      case "f":
+      case "F":
+        if (document.fullscreenElement) document.exitFullscreen();
+        else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+        break;
+    }
+  });
+
+  // -- estado inicial --
+  atualizarPainel(0);
+
+  // -- se a URL tiver #5, rola até aquele slide ao abrir --
+  var inicio = parseInt((location.hash || "").replace("#", ""), 10);
+  if (!isNaN(inicio) && inicio >= 1 && inicio <= slides.length) {
+    setTimeout(function () { irPara(inicio - 1); }, 120);
+  }
+})();
+
+</script>
 </body>
 </html>

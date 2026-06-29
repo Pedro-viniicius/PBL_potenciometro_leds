@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula de Robótica — 8 LEDs controlados por potenciômetro</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="progresso" id="progresso"></div>
+<div class="deck" id="deck">
+
+  <!-- ============ SLIDE 1 — CAPA ============ -->
+  <section class="slide capa ativo" data-titulo="Capa">
+    <div class="slide-inner">
+      <span class="badge">🤖 Aula de Robótica · Metodologia PBL</span>
+      <h1>8 LEDs controlados por um potenciômetro</h1>
+      <p class="subtitulo">Aprender a transformar o giro de um botão em luz, usando o Arduino Uno</p>
+      <p class="meta">Aprendizagem Baseada em Problemas (PBL) · Turma iniciante</p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 2 — DESAFIO DE HOJE ============ -->
+  <section class="slide" data-titulo="O desafio">
+    <div class="slide-inner">
+      <span class="tag-secao">Abertura</span>
+      <h2>O desafio de hoje 🎯</h2>
+      <div class="callout info"><span class="ic">❓</span>
+        <div><strong>Problema:</strong> Como fazer uma "barra de luz" que <span class="destaque">acende mais LEDs conforme giramos um botão</span>, parecida com o volume de um som?</div>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <span class="icone">🔧</span>
+          <h3>O que vamos construir</h3>
+          <p>Um circuito com <strong>8 LEDs</strong> e <strong>1 potenciômetro</strong>. Ao girar o potenciômetro, a quantidade de LEDs acesos aumenta aos poucos.</p>
+        </div>
+        <div class="card verde">
+          <span class="icone">💡</span>
+          <h3>Comportamento esperado</h3>
+          <ul>
+            <li>Mínimo → <strong>nenhum</strong> LED aceso</li>
+            <li>Girando → acende <strong>1, 2, 3...</strong> em sequência</li>
+            <li>Máximo → <strong>todos os 8</strong> acesos</li>
+          </ul>
+        </div>
+      </div>
+      <div class="barra-leds">
+        <div class="led on">1</div><div class="led on">2</div><div class="led on">3</div>
+        <div class="led on">4</div><div class="led on">5</div><div class="led">6</div>
+        <div class="led">7</div><div class="led">8</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 3 — OBJETIVOS DE APRENDIZAGEM ============ -->
+  <section class="slide" data-titulo="Objetivos">
+    <div class="slide-inner">
+      <span class="tag-secao">Abertura</span>
+      <h2>Objetivos de aprendizagem 📚</h2>
+      <p class="lead">Ao final da aula, você será capaz de:</p>
+      <div class="grid grid-2">
+        <div class="card"><h3>⚡ Eletrônica</h3><ul>
+          <li>Montar um circuito com LEDs e resistores</li>
+          <li>Entender <strong>corrente</strong>, <strong>tensão</strong>, <strong>5V</strong> e <strong>GND</strong></li>
+          <li>Ligar um <strong>potenciômetro</strong> corretamente</li>
+        </ul></div>
+        <div class="card laranja"><h3>💻 Programação</h3><ul>
+          <li>Usar <strong>variáveis</strong> e o tipo <code class="inline">int</code></li>
+          <li>Entender <code class="inline">setup()</code> e <code class="inline">loop()</code></li>
+          <li>Ler a <strong>entrada analógica</strong> com <code class="inline">analogRead()</code></li>
+          <li>Controlar <strong>saídas digitais</strong> com <code class="inline">digitalWrite()</code></li>
+          <li>Usar <code class="inline">if/else</code> e laço <code class="inline">for</code></li>
+        </ul></div>
+      </div>
+      <div class="pilulas mt">
+        <span class="pilula">entrada</span><span class="pilula">saída</span>
+        <span class="pilula v">analógico</span><span class="pilula v">digital</span>
+        <span class="pilula l">corrente</span><span class="pilula l">tensão</span>
+        <span class="pilula r">GND</span><span class="pilula r">variável</span>
+        <span class="pilula">repetição</span><span class="pilula v">leitura</span><span class="pilula l">controle</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 4 — REVISÃO: O QUE É UM LED ============ -->
+  <section class="slide" data-titulo="O que é um LED">
+    <div class="slide-inner">
+      <span class="tag-secao">Revisão de eletrônica</span>
+      <h2>O que é um LED? 💡</h2>
+      <div class="duas-colunas">
+        <div>
+          <p>LED significa <strong>Diodo Emissor de Luz</strong> (do inglês <em>Light Emitting Diode</em>). É uma pecinha que <span class="destaque">acende quando a corrente passa por ela no sentido certo</span>.</p>
+          <div class="callout aviso"><span class="ic">⚠️</span>
+            <div>O LED tem <strong>lado certo</strong>! Ele só acende em um sentido.
+              <ul>
+                <li><strong>Perna longa = positivo (+)</strong> → chamada de <em>ânodo</em></li>
+                <li><strong>Perna curta = negativo (−)</strong> → chamada de <em>cátodo</em>, vai para o GND</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout dica"><span class="ic">🧠</span><div>Dica para lembrar: a perna <strong>curta</strong> é a do lado <strong>cortado/chanfrado</strong> do LED, e vai para o lado negativo (GND).</div></div>
+        </div>
+        <div class="card verde">
+          <span class="icone">🔋</span>
+          <h3>Como ligar</h3>
+          <p>A corrente entra pela perna longa (+), atravessa o LED e sai pela perna curta (−) em direção ao <strong>GND</strong>. No caminho, sempre colocamos um <strong>resistor</strong>.</p>
+          <p class="center" style="font-size:1.6rem">5V → [resistor] → ➕ LED ➖ → GND</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 5 — POR QUE LED PRECISA DE RESISTOR ============ -->
+  <section class="slide" data-titulo="Resistor no LED">
+    <div class="slide-inner">
+      <span class="tag-secao">Revisão de eletrônica</span>
+      <h2>Por que o LED precisa de resistor? 🛡️</h2>
+      <div class="callout erro"><span class="ic">🔥</span><div>Sem resistor, passa <strong>corrente demais</strong> pelo LED. Ele esquenta, brilha forte por um instante e <strong>queima</strong>.</div></div>
+      <div class="grid grid-3">
+        <div class="card"><span class="icone">🚰</span><h3>Analogia</h3><p>O resistor é como uma <strong>torneira meio fechada</strong>: deixa passar só um pouquinho de "água" (corrente), na medida certa.</p></div>
+        <div class="card verde"><span class="icone">📏</span><h3>Função</h3><p>O resistor <strong>limita a corrente</strong> que passa pelo LED, protegendo o componente.</p></div>
+        <div class="card laranja"><span class="icone">🔢</span><h3>Valor típico</h3><p>Para um LED comum em 5V usamos um resistor de <strong>220 Ω a 330 Ω</strong>.</p></div>
+      </div>
+      <div class="callout ok"><span class="ic">✅</span><div><strong>Regra de ouro:</strong> todo LED deste projeto vai ter <strong>sempre</strong> um resistor em série. São 8 LEDs → 8 resistores.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 6 — CORRENTE, TENSÃO, GND ============ -->
+  <section class="slide" data-titulo="Corrente, tensão e GND">
+    <div class="slide-inner">
+      <span class="tag-secao">Revisão de eletrônica</span>
+      <h2>Corrente, tensão, 5V e GND ⚡</h2>
+      <div class="callout info"><span class="ic">🚰</span><div><strong>Analogia do encanamento:</strong> imagine a eletricidade como água em um cano.</div></div>
+      <div class="grid grid-2">
+        <div class="card laranja"><h3>🌊 Corrente (A)</h3><p>É a <strong>quantidade de carga que passa</strong> pelo fio. Como a <em>água que corre</em> dentro do cano. Mais corrente = mais "água passando".</p></div>
+        <div class="card"><h3>⛰️ Tensão (V)</h3><p>É a <strong>"força" / pressão</strong> que empurra a corrente. Como a <em>pressão da água</em>. Sem tensão, a corrente não anda.</p></div>
+        <div class="card vermelho"><h3>🔴 5V</h3><p>É o pino que fornece a <strong>tensão positiva</strong> (a "fonte de pressão") para o circuito.</p></div>
+        <div class="card"><h3>⚫ GND (terra)</h3><p>É o ponto de <strong>referência negativo (0 V)</strong>. É para onde a corrente <strong>volta</strong> para fechar o circuito.</p></div>
+      </div>
+      <div class="callout dica"><span class="ic">🧠</span><div>Pense em <strong>5V e GND como as duas margens de um rio</strong>: a água (corrente) só corre porque uma margem é "mais alta" (5V) do que a outra (GND).</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 7 — CIRCUITO FECHADO ============ -->
+  <section class="slide" data-titulo="Circuito fechado">
+    <div class="slide-inner">
+      <span class="tag-secao">Revisão de eletrônica</span>
+      <h2>Por que o circuito precisa ser fechado? 🔁</h2>
+      <div class="duas-colunas">
+        <div>
+          <p>A corrente só passa se houver um <span class="destaque">caminho completo, de ida e volta</span>: ela sai do <strong>5V</strong>, atravessa os componentes e <strong>volta ao GND</strong>.</p>
+          <div class="callout erro"><span class="ic">🚧</span><div>Se o caminho estiver <strong>interrompido</strong> (fio solto, perna fora do furo), a corrente não passa e o LED <strong>não acende</strong>.</div></div>
+          <div class="callout ok"><span class="ic">✅</span><div>Circuito fechado = caminho completo = corrente passando = LED aceso!</div></div>
+        </div>
+        <div class="card verde">
+          <span class="icone">🔄</span>
+          <h3>O caminho da corrente</h3>
+          <p style="font-size:1.4rem; line-height:2">
+            ① Sai do <strong style="color:var(--vermelho)">5V</strong><br>
+            ② Passa pelo <strong>resistor</strong><br>
+            ③ Atravessa o <strong>LED</strong><br>
+            ④ Volta para o <strong>GND</strong> ⚫<br>
+            🔁 ... e o ciclo se mantém
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 8 — ARDUINO UNO ============ -->
+  <section class="slide" data-titulo="O Arduino Uno">
+    <div class="slide-inner">
+      <span class="tag-secao">Conhecendo o Arduino</span>
+      <h2>O que é o Arduino Uno? 🟢</h2>
+      <p class="lead">É uma <strong>placa de prototipagem</strong>: um pequeno computador que conseguimos programar para <strong>ler sensores</strong> e <strong>controlar componentes</strong> (LEDs, motores...).</p>
+      <div class="grid grid-3">
+        <div class="card"><span class="icone">🧠</span><h3>Cérebro</h3><p>Tem um microcontrolador que executa o programa que escrevemos no computador.</p></div>
+        <div class="card laranja"><span class="icone">🔌</span><h3>Pinos</h3><p>Pelos pinos ele se conecta ao mundo: recebe sinais (entrada) e envia sinais (saída).</p></div>
+        <div class="card verde"><span class="icone">🔋</span><h3>Energia</h3><p>É alimentado pelo cabo USB do computador e fornece <strong>5V</strong> e <strong>GND</strong> para o circuito.</p></div>
+      </div>
+      <div class="callout info"><span class="ic">💬</span><div>Resumindo: <strong>nós escrevemos o programa</strong> → enviamos para a placa pelo cabo USB → <strong>a placa obedece</strong> e controla o circuito.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 9 — PINOS DO ARDUINO (diagrama) ============ -->
+  <section class="slide" data-titulo="Pinos do Arduino">
+    <div class="slide-inner">
+      <span class="tag-secao">Conhecendo o Arduino</span>
+      <h2>Os pinos do Arduino Uno 🔌</h2>
+      <div class="placa">
+        <div class="titulo-placa">ARDUINO UNO</div>
+        <p style="opacity:.9; margin-bottom:.4rem">Pinos digitais (0 a 13) — usaremos 8 deles para os LEDs:</p>
+        <div class="fileira">
+          <span class="pino dig">13</span><span class="pino dig">12</span><span class="pino dig">11</span><span class="pino dig">10</span>
+          <span class="pino dig">9</span><span class="pino dig">8</span><span class="pino dig">7</span><span class="pino dig">6</span>
+          <span class="pino dig">5</span><span class="pino dig">4</span><span class="pino dig">3</span><span class="pino dig">2</span>
+        </div>
+        <p style="opacity:.9; margin:.6rem 0 .4rem">Alimentação e Terra:</p>
+        <div class="fileira">
+          <span class="pino pwr">5V</span><span class="pino pwr">3.3V</span><span class="pino gnd">GND</span><span class="pino gnd">GND</span>
+        </div>
+        <p style="opacity:.9; margin:.6rem 0 .4rem">Entradas analógicas (A0 a A5) — usaremos A0 para o potenciômetro:</p>
+        <div class="fileira">
+          <span class="pino ana">A0</span><span class="pino ana">A1</span><span class="pino ana">A2</span>
+          <span class="pino ana">A3</span><span class="pino ana">A4</span><span class="pino ana">A5</span>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div class="card"><h3>🔢 Pinos digitais</h3><p>São <strong>14</strong> (de 0 a 13). Trabalham com <strong>2 estados</strong>: ligado ou desligado.</p></div>
+        <div class="card laranja"><h3>📈 Entradas analógicas</h3><p>São <strong>6</strong> (A0 a A5). Leem valores <strong>variáveis</strong>, não só ligado/desligado.</p></div>
+        <div class="card verde"><h3>🔋 5V e GND</h3><p><strong>5V</strong> alimenta o circuito; os pinos <strong>GND</strong> fecham o caminho da corrente.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 10 — ENTRADA x SAÍDA / DIGITAL x ANALÓGICO ============ -->
+  <section class="slide" data-titulo="Entrada x Saída">
+    <div class="slide-inner">
+      <span class="tag-secao">Conhecendo o Arduino</span>
+      <h2>Entrada × Saída · Digital × Analógico 🔁</h2>
+      <div class="duas-colunas">
+        <div class="card verde">
+          <h3>➡️ Entrada vs. ⬅️ Saída</h3>
+          <p><strong>Entrada:</strong> a placa <strong>recebe / lê</strong> informação do mundo (ex.: ler o potenciômetro).</p>
+          <p><strong>Saída:</strong> a placa <strong>envia / controla</strong> algo no mundo (ex.: acender um LED).</p>
+          <div class="callout dica" style="margin:.6rem 0 0"><span class="ic">🧠</span><div>Pense na placa como uma pessoa: a <strong>entrada</strong> é o que ela <strong>vê/ouve</strong>; a <strong>saída</strong> é o que ela <strong>faz/fala</strong>.</div></div>
+        </div>
+        <div class="card laranja">
+          <h3>🔢 Digital vs. 📈 Analógico</h3>
+          <p><strong>Sinal digital:</strong> só <strong>2 valores</strong> → ligado (HIGH) ou desligado (LOW). Como um interruptor de luz.</p>
+          <p><strong>Sinal analógico:</strong> <strong>muitos valores</strong> entre o mínimo e o máximo. Como um dimmer ou o volume do som.</p>
+          <div class="callout info" style="margin:.6rem 0 0"><span class="ic">💡</span><div>O <strong>LED</strong> usamos como saída <strong>digital</strong>. O <strong>potenciômetro</strong> usamos como entrada <strong>analógica</strong>.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 11 — POTENCIÔMETRO: O QUE É ============ -->
+  <section class="slide" data-titulo="O potenciômetro">
+    <div class="slide-inner">
+      <span class="tag-secao">Componente novo</span>
+      <h2>Componente novo: o potenciômetro 🎛️</h2>
+      <div class="pot-demo">
+        <div class="knob"><div class="centro"></div></div>
+        <div style="max-width:520px">
+          <p class="lead">É um <strong>resistor variável</strong> com um <strong>botão giratório</strong>.</p>
+          <div class="callout dica"><span class="ic">🔊</span><div><strong>Analogia simples:</strong> é igual ao <strong>botão de volume</strong> de um som antigo. Girou para um lado, aumenta; para o outro, diminui.</div></div>
+        </div>
+      </div>
+      <p>Fisicamente, ao girar o botão movemos um "cursor" sobre uma trilha resistiva por dentro. Isso muda a resistência e, com isso, muda a <strong>tensão</strong> que entregamos ao Arduino. O Arduino lê essa tensão como um <strong>número</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 12 — POTENCIÔMETRO: 3 TERMINAIS ============ -->
+  <section class="slide" data-titulo="Os 3 terminais">
+    <div class="slide-inner">
+      <span class="tag-secao">Componente novo</span>
+      <h2>Por que o potenciômetro tem 3 terminais? 🔌</h2>
+      <p class="lead">Ele funciona como um <strong>divisor de tensão</strong>: as duas pontas recebem a energia e o meio entrega o valor.</p>
+      <div class="grid grid-3">
+        <div class="card vermelho"><span class="icone">🔴</span><h3>Terminal lateral 1</h3><p>Vai para o <strong>5V</strong> da placa.</p></div>
+        <div class="card laranja"><span class="icone">🟠</span><h3>Terminal do MEIO</h3><p>Vai para a <strong>entrada analógica A0</strong>. É o "cursor" que entrega o valor lido.</p></div>
+        <div class="card"><span class="icone">⚫</span><h3>Terminal lateral 2</h3><p>Vai para o <strong>GND</strong> da placa.</p></div>
+      </div>
+      <div class="callout ok"><span class="ic">✅</span><div><strong>Resumo da ligação:</strong> lateral → <span style="color:var(--vermelho);font-weight:800">5V</span> · meio → <span style="color:var(--laranja);font-weight:800">A0</span> · outra lateral → <span style="font-weight:800">GND</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 13 — POTENCIÔMETRO: COMO FUNCIONA ============ -->
+  <section class="slide" data-titulo="Como ele funciona">
+    <div class="slide-inner">
+      <span class="tag-secao">Componente novo</span>
+      <h2>O que acontece ao girar o botão? 🔄</h2>
+      <div class="duas-colunas">
+        <div>
+          <p>Por dentro existe um <strong>cursor</strong> que desliza entre o lado do 5V e o lado do GND:</p>
+          <ul>
+            <li>Cursor perto do <strong>GND</strong> → tensão no meio fica <strong>baixa</strong> (perto de 0 V)</li>
+            <li>Cursor no <strong>meio</strong> → tensão fica <strong>na metade</strong> (perto de 2,5 V)</li>
+            <li>Cursor perto do <strong>5V</strong> → tensão fica <strong>alta</strong> (perto de 5 V)</li>
+          </ul>
+          <div class="callout info"><span class="ic">📈</span><div>Ou seja: girar o botão = <strong>escolher uma tensão</strong> entre 0 V e 5 V para mandar ao Arduino.</div></div>
+        </div>
+        <div class="card laranja">
+          <h3>🔢 Por que de 0 a 1023?</h3>
+          <p>O Arduino transforma a tensão (de 0 V a 5 V) em um <strong>número inteiro</strong> usando um conversor de <strong>10 bits</strong>.</p>
+          <p>10 bits conseguem representar <strong>1024 valores diferentes</strong>: de <strong>0</strong> até <strong>1023</strong>.</p>
+          <table>
+            <tr><th>Tensão</th><th>analogRead()</th></tr>
+            <tr><td>0 V</td><td>0</td></tr>
+            <tr><td>2,5 V</td><td>≈ 512</td></tr>
+            <tr><td>5 V</td><td>1023</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 14 — POTENCIÔMETRO: ERROS COMUNS ============ -->
+  <section class="slide" data-titulo="Erros do potenciômetro">
+    <div class="slide-inner">
+      <span class="tag-secao">Componente novo</span>
+      <h2>Erros comuns ao ligar o potenciômetro ⚠️</h2>
+      <div class="grid grid-2">
+        <div class="card vermelho"><span class="icone">🔀</span><h3>Trocar o meio com a lateral</h3><p>Se o fio de A0 não estiver no terminal <strong>do meio</strong>, a leitura fica estranha ou travada.</p></div>
+        <div class="card vermelho"><span class="icone">⚡</span><h3>5V e GND trocados</h3><p>Não queima, mas o valor fica <strong>invertido</strong> (gira para um lado e o número diminui em vez de aumentar).</p></div>
+        <div class="card vermelho"><span class="icone">🔌</span><h3>Usar pino digital</h3><p>O potenciômetro é analógico! O meio precisa ir para uma entrada <strong>A0–A5</strong>, não para um pino digital.</p></div>
+        <div class="card vermelho"><span class="icone">🧩</span><h3>Pernas no furo errado</h3><p>Na protoboard, os 3 terminais precisam estar em <strong>colunas diferentes</strong>, sem se encostar.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 15 — VARIÁVEIS ============ -->
+  <section class="slide" data-titulo="Variáveis">
+    <div class="slide-inner">
+      <span class="tag-secao">Conceitos de programação</span>
+      <h2>O que é uma variável? 📦</h2>
+      <div class="duas-colunas">
+        <div>
+          <p>Uma variável é uma <span class="destaque">caixinha com nome onde guardamos um valor</span> para usar depois.</p>
+          <div class="callout dica"><span class="ic">📦</span><div>Pense em uma <strong>caixa etiquetada</strong>: a etiqueta é o nome (ex.: <code class="inline">leitura</code>) e dentro tem um valor (ex.: 512).</div></div>
+          <h3>Por que usamos variáveis?</h3>
+          <ul>
+            <li>Para <strong>guardar</strong> o que lemos do potenciômetro</li>
+            <li>Para <strong>reaproveitar</strong> o valor em vários lugares</li>
+            <li>Para deixar o código <strong>mais fácil de ler</strong></li>
+          </ul>
+        </div>
+        <div class="card laranja">
+          <h3><code class="inline">int</code> = número inteiro</h3>
+          <p>Usamos <code class="inline">int</code> para guardar números <strong>inteiros</strong> (sem vírgula), como 0, 7, 512, 1023.</p>
+<pre><span class="kw">int</span> leitura;          <span class="cmt">// cria a caixinha</span>
+leitura = <span class="num">512</span>;        <span class="cmt">// guarda 512 dentro</span>
+<span class="kw">int</span> nivel = <span class="num">0</span>;       <span class="cmt">// cria e já guarda 0</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 16 — SETUP E LOOP ============ -->
+  <section class="slide" data-titulo="setup e loop">
+    <div class="slide-inner">
+      <span class="tag-secao">Conceitos de programação</span>
+      <h2><code class="inline">void setup()</code> e <code class="inline">void loop()</code> 🔁</h2>
+      <p class="lead">Todo programa de Arduino tem essas duas partes obrigatórias.</p>
+      <div class="duas-colunas">
+        <div class="card verde">
+          <h3>⚙️ void setup()</h3>
+          <p>Roda <strong>UMA única vez</strong>, quando a placa liga. Serve para <strong>preparar / configurar</strong> as coisas (ex.: dizer quais pinos são saída).</p>
+          <div class="callout dica" style="margin:.5rem 0 0"><span class="ic">🧠</span><div>É como <strong>arrumar a mesa antes de começar</strong> a trabalhar.</div></div>
+        </div>
+        <div class="card laranja">
+          <h3>🔄 void loop()</h3>
+          <p>Roda <strong>SEM PARAR, repetindo para sempre</strong>. É onde fica a ação principal (ler o potenciômetro e acender os LEDs).</p>
+          <div class="callout dica" style="margin:.5rem 0 0"><span class="ic">🧠</span><div>É como <strong>uma tarefa que você refaz o tempo todo</strong>, milhares de vezes por segundo.</div></div>
+        </div>
+      </div>
+<pre><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="cmt">// roda 1 vez: preparação</span>
+}
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// roda para sempre: a ação repetida</span>
+}</pre>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 17 — pinMode, OUTPUT, digitalWrite ============ -->
+  <section class="slide" data-titulo="pinMode e digitalWrite">
+    <div class="slide-inner">
+      <span class="tag-secao">Conceitos de programação</span>
+      <h2>Configurar e controlar a saída digital 💡</h2>
+      <div class="grid grid-3">
+        <div class="card"><h3><code class="inline">pinMode()</code></h3><p>Diz para a placa <strong>como usar um pino</strong>: como saída (<code class="inline">OUTPUT</code>) ou entrada (<code class="inline">INPUT</code>).</p></div>
+        <div class="card verde"><h3><code class="inline">OUTPUT</code></h3><p>Significa <strong>saída</strong>: o pino vai <strong>enviar</strong> sinal (acender o LED).</p></div>
+        <div class="card laranja"><h3><code class="inline">digitalWrite()</code></h3><p>Liga ou desliga um pino de saída usando <code class="inline">HIGH</code> ou <code class="inline">LOW</code>.</p></div>
+      </div>
+      <div class="callout info"><span class="ic">🔌</span><div><strong>HIGH</strong> = manda 5V no pino → LED <strong>acende</strong>. &nbsp;·&nbsp; <strong>LOW</strong> = manda 0V no pino → LED <strong>apaga</strong>.</div></div>
+<pre><span class="fn">pinMode</span>(<span class="num">2</span>, OUTPUT);      <span class="cmt">// o pino 2 será uma SAÍDA</span>
+<span class="fn">digitalWrite</span>(<span class="num">2</span>, HIGH);  <span class="cmt">// acende o LED do pino 2</span>
+<span class="fn">digitalWrite</span>(<span class="num">2</span>, LOW);   <span class="cmt">// apaga o LED do pino 2</span></pre>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 18 — analogRead ============ -->
+  <section class="slide" data-titulo="analogRead">
+    <div class="slide-inner">
+      <span class="tag-secao">Conceitos de programação</span>
+      <h2>Ler a entrada analógica: <code class="inline">analogRead()</code> 📈</h2>
+      <div class="duas-colunas">
+        <div>
+          <p><code class="inline">analogRead(A0)</code> <strong>lê a tensão</strong> no pino A0 e devolve um <strong>número de 0 a 1023</strong>.</p>
+          <p>Guardamos esse número em uma variável para usar depois:</p>
+<pre><span class="kw">int</span> leitura = <span class="fn">analogRead</span>(A0);
+<span class="cmt">// leitura agora vale algo entre 0 e 1023</span></pre>
+          <div class="callout info"><span class="ic">💬</span><div>Essa é a parte de <strong>leitura</strong> e <strong>entrada</strong>: a placa está "ouvindo" o potenciômetro.</div></div>
+        </div>
+        <div class="card laranja">
+          <h3>Do número aos LEDs</h3>
+          <p>Precisamos transformar 0–1023 em "quantos LEDs acender" (0 a 8). Usamos a função <code class="inline">map()</code>:</p>
+<pre><span class="kw">int</span> nivel = <span class="fn">map</span>(leitura, <span class="num">0</span>, <span class="num">1023</span>, <span class="num">0</span>, <span class="num">8</span>);
+<span class="cmt">// converte a faixa 0..1023 para 0..8</span></pre>
+          <p>Agora <code class="inline">nivel</code> diz <strong>quantos LEDs</strong> devem ficar acesos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 19 — if/else e for ============ -->
+  <section class="slide" data-titulo="if/else e for">
+    <div class="slide-inner">
+      <span class="tag-secao">Conceitos de programação</span>
+      <h2>Decisão (<code class="inline">if/else</code>) e repetição (<code class="inline">for</code>) 🔀🔁</h2>
+      <div class="duas-colunas">
+        <div class="card verde">
+          <h3>🔀 if / else</h3>
+          <p>Faz a placa <strong>tomar decisão</strong>: <em>SE</em> uma condição for verdadeira, faça uma coisa; <em>SENÃO</em>, faça outra.</p>
+<pre><span class="kw">if</span> (i &lt; nivel) {
+  <span class="fn">digitalWrite</span>(pino, HIGH); <span class="cmt">// acende</span>
+} <span class="kw">else</span> {
+  <span class="fn">digitalWrite</span>(pino, LOW);  <span class="cmt">// apaga</span>
+}</pre>
+        </div>
+        <div class="card laranja">
+          <h3>🔁 for</h3>
+          <p>Repete um bloco várias vezes. Em vez de escrever 8 linhas iguais, escrevemos <strong>uma</strong> que roda 8 vezes.</p>
+<pre><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) {
+  <span class="cmt">// roda para i = 0,1,2,...,7</span>
+}</pre>
+          <div class="callout dica" style="margin:.5rem 0 0"><span class="ic">🧠</span><div>A <strong>repetição</strong> evita copiar o mesmo código 8 vezes — menos erro e mais fácil de ler!</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 20 — ROTEIRO PBL ============ -->
+  <section class="slide" data-titulo="Roteiro do desafio">
+    <div class="slide-inner">
+      <span class="tag-secao">Mãos à obra — PBL</span>
+      <h2>Roteiro do desafio (passo a passo) 🗺️</h2>
+      <div class="passos">
+        <div class="passo"><div><strong>Entender o problema</strong>Acender mais LEDs conforme giramos o potenciômetro.</div></div>
+        <div class="passo"><div><strong>Identificar os componentes</strong>Arduino, 8 LEDs, 8 resistores, potenciômetro, jumpers, protoboard.</div></div>
+        <div class="passo"><div><strong>Montar o circuito</strong>Primeiro a alimentação (5V e GND), depois o potenciômetro, depois os LEDs.</div></div>
+        <div class="passo"><div><strong>Testar 1 LED</strong>Garantir que um único LED acende antes de montar os 8.</div></div>
+        <div class="passo"><div><strong>Testar o potenciômetro</strong>Conferir a ligação dos 3 terminais.</div></div>
+        <div class="passo"><div><strong>Ler valores analógicos</strong>Usar o Monitor Serial para ver os números de 0 a 1023.</div></div>
+        <div class="passo"><div><strong>Converter o valor em quantidade de LEDs</strong>Usar <code class="inline">map()</code> para ir de 0–1023 para 0–8.</div></div>
+        <div class="passo"><div><strong>Acender os LEDs progressivamente</strong>Usar o <code class="inline">for</code> + <code class="inline">if/else</code>.</div></div>
+        <div class="passo"><div><strong>Depurar erros comuns</strong>LED invertido, fio solto, pino errado...</div></div>
+        <div class="passo"><div><strong>Apresentar e explicar</strong>Cada grupo mostra o projeto e explica como funciona.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 21 — COMPONENTES DO CIRCUITO ============ -->
+  <section class="slide" data-titulo="Componentes">
+    <div class="slide-inner">
+      <span class="tag-secao">O circuito</span>
+      <h2>Lista de componentes 🧰</h2>
+      <div class="grid grid-4">
+        <div class="card"><span class="icone">🟢</span><h3>1× Arduino Uno</h3><p>O cérebro do projeto.</p></div>
+        <div class="card laranja"><span class="icone">💡</span><h3>8× LEDs</h3><p>A "barra de luz".</p></div>
+        <div class="card verde"><span class="icone">🛡️</span><h3>8× Resistores</h3><p>220 Ω a 330 Ω, um por LED.</p></div>
+        <div class="card roxo"><span class="icone">🎛️</span><h3>1× Potenciômetro</h3><p>O controle.</p></div>
+        <div class="card"><span class="icone">🔗</span><h3>Jumpers</h3><p>Fios de ligação.</p></div>
+        <div class="card amarelo"><span class="icone">🧩</span><h3>1× Protoboard</h3><p>A base de montagem.</p></div>
+      </div>
+      <div class="callout aviso"><span class="ic">🛡️</span><div><strong>Lembretes de segurança:</strong> monte sempre com o Arduino <strong>desconectado da USB</strong>; confira tudo antes de ligar; nunca ligue um LED no 5V <strong>sem resistor</strong>; não force pernas tortas na protoboard.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 22 — LIGAÇÕES / PINOS SUGERIDOS ============ -->
+  <section class="slide" data-titulo="Ligações">
+    <div class="slide-inner">
+      <span class="tag-secao">O circuito</span>
+      <h2>Pinos sugeridos e ligações 🔌</h2>
+      <table>
+        <tr><th>Componente</th><th>Liga em...</th><th>Para quê</th></tr>
+        <tr><td>LED 1 → 8 (perna + com resistor)</td><td>Pinos digitais <strong>2, 3, 4, 5, 6, 7, 8, 9</strong></td><td>Saída digital: acender cada LED</td></tr>
+        <tr><td>LED 1 → 8 (perna −)</td><td><strong>GND</strong></td><td>Fechar o circuito de cada LED</td></tr>
+        <tr><td>Potenciômetro — lateral</td><td><strong>5V</strong></td><td>Alimentar o potenciômetro</td></tr>
+        <tr><td>Potenciômetro — meio</td><td><strong>A0</strong></td><td>Entrada analógica: ler o giro</td></tr>
+        <tr><td>Potenciômetro — outra lateral</td><td><strong>GND</strong></td><td>Fechar o divisor de tensão</td></tr>
+      </table>
+      <div class="callout info"><span class="ic">🧠</span><div>Cada LED tem o seu <strong>próprio resistor</strong> e o seu <strong>próprio pino digital</strong>. Todos os lados negativos vão para a <strong>mesma linha de GND</strong> da protoboard.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 23 — CÓDIGO POR PARTES ============ -->
+  <section class="slide" data-titulo="Código por partes">
+    <div class="slide-inner">
+      <span class="tag-secao">Programação</span>
+      <h2>Construindo o código por partes 🧩</h2>
+      <div class="duas-colunas">
+        <div>
+          <h3>1) Guardar os pinos dos LEDs (array)</h3>
+<pre><span class="cmt">// um "array" é uma lista de valores</span>
+<span class="kw">int</span> leds[] = {<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>,<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>};</pre>
+          <h3>2) Configurar como saída no setup</h3>
+<pre><span class="kw">for</span> (<span class="kw">int</span> i=<span class="num">0</span>; i&lt;<span class="num">8</span>; i++) {
+  <span class="fn">pinMode</span>(leds[i], OUTPUT);
+}</pre>
+        </div>
+        <div>
+          <h3>3) Ler e converter no loop</h3>
+<pre><span class="kw">int</span> leitura = <span class="fn">analogRead</span>(A0);
+<span class="kw">int</span> nivel = <span class="fn">map</span>(leitura,<span class="num">0</span>,<span class="num">1023</span>,<span class="num">0</span>,<span class="num">8</span>);</pre>
+          <h3>4) Acender progressivamente</h3>
+<pre><span class="kw">for</span> (<span class="kw">int</span> i=<span class="num">0</span>; i&lt;<span class="num">8</span>; i++) {
+  <span class="kw">if</span> (i &lt; nivel)
+    <span class="fn">digitalWrite</span>(leds[i], HIGH);
+  <span class="kw">else</span>
+    <span class="fn">digitalWrite</span>(leds[i], LOW);
+}</pre>
+        </div>
+      </div>
+      <div class="callout dica"><span class="ic">🧠</span><div>A ideia central: <strong>se a posição do LED (i) for menor que o nível, acende; senão, apaga</strong>. Assim os LEDs acendem em sequência!</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 24 — CÓDIGO FINAL ============ -->
+  <section class="slide" data-titulo="Código final">
+    <div class="slide-inner">
+      <span class="tag-secao">Programação</span>
+      <h2>Código final completo ✅</h2>
+<pre><span class="cmt">// ============================================================
+// 8 LEDs controlados por um potenciometro
+// Gira o potenciometro -> acende mais ou menos LEDs em sequencia
+// ============================================================</span>
+
+<span class="cmt">// Lista (array) com os 8 pinos digitais dos LEDs</span>
+<span class="kw">int</span> leds[] = {<span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>};
+<span class="kw">int</span> totalLeds = <span class="num">8</span>;          <span class="cmt">// quantos LEDs temos</span>
+<span class="kw">int</span> pinoPot = A0;            <span class="cmt">// potenciometro no pino analogico A0</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="comment"></span><span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);       <span class="cmt">// abre o Monitor Serial p/ ver os valores</span>
+  <span class="cmt">// configura cada pino de LED como SAIDA</span>
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; totalLeds; i++) {
+    <span class="fn">pinMode</span>(leds[i], OUTPUT);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// 1) LER a entrada analogica (0 a 1023)</span>
+  <span class="kw">int</span> leitura = <span class="fn">analogRead</span>(pinoPot);
+
+  <span class="cmt">// 2) CONVERTER a leitura em quantidade de LEDs (0 a 8)</span>
+  <span class="kw">int</span> nivel = <span class="fn">map</span>(leitura, <span class="num">0</span>, <span class="num">1023</span>, <span class="num">0</span>, totalLeds);
+
+  <span class="cmt">// 3) mostrar no Monitor Serial (ajuda a depurar)</span>
+  <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"Leitura: "</span>);
+  <span class="fn">Serial</span>.<span class="fn">print</span>(leitura);
+  <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"  -> LEDs acesos: "</span>);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(nivel);
+
+  <span class="cmt">// 4) ACENDER os LEDs progressivamente</span>
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; totalLeds; i++) {
+    <span class="kw">if</span> (i &lt; nivel) {
+      <span class="fn">digitalWrite</span>(leds[i], HIGH);  <span class="cmt">// dentro do nivel -> acende</span>
+    } <span class="kw">else</span> {
+      <span class="fn">digitalWrite</span>(leds[i], LOW);   <span class="cmt">// fora do nivel  -> apaga</span>
+    }
+  }
+
+  <span class="fn">delay</span>(<span class="num">50</span>);  <span class="cmt">// pequena pausa para estabilizar a leitura</span>
+}</pre>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 25 — DEPURAÇÃO ============ -->
+  <section class="slide" data-titulo="Depuração">
+    <div class="slide-inner">
+      <span class="tag-secao">Depuração</span>
+      <h2>Erros comuns e como resolver 🐛</h2>
+      <table>
+        <tr><th>Problema</th><th>Sintoma</th><th>Solução</th></tr>
+        <tr><td>LED invertido</td><td>Não acende nunca</td><td>Vire o LED: perna longa (+) para o resistor/pino</td></tr>
+        <tr><td>Faltou resistor</td><td>Acende forte e queima</td><td>Coloque sempre 1 resistor por LED</td></tr>
+        <tr><td>GND errado / ausente</td><td>Nada funciona</td><td>Confira o fio do GND fechando o circuito</td></tr>
+        <tr><td>Potenciômetro mal ligado</td><td>Valor travado ou estranho</td><td>Meio → A0, laterais → 5V e GND</td></tr>
+        <tr><td>Pino analógico errado</td><td>Leitura não muda</td><td>Use o pino A0 no código e no circuito</td></tr>
+        <tr><td>Esqueceu o pinMode</td><td>LED não acende</td><td>Configure OUTPUT no setup</td></tr>
+        <tr><td>Confundiu digital × analógico</td><td>Comportamento errado</td><td>LED → digital; potenciômetro → analógico</td></tr>
+        <tr><td>Placa/porta errada</td><td>Erro ao enviar o código</td><td>Selecione "Arduino Uno" e a porta certa na IDE</td></tr>
+        <tr><td>Fios soltos na protoboard</td><td>Funciona "às vezes"</td><td>Encaixe bem; confira os furos</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 26 — REFLEXÃO FINAL ============ -->
+  <section class="slide" data-titulo="Reflexão final">
+    <div class="slide-inner">
+      <span class="tag-secao">Reflexão final</span>
+      <h2>Para pensar e discutir 🤔</h2>
+      <div class="grid grid-2">
+        <div class="card"><span class="icone">🎛️</span><p>O que o potenciômetro <strong>controlava</strong> no nosso projeto?</p></div>
+        <div class="card laranja"><span class="icone">🔢</span><p>Por que o Arduino lia valores de <strong>0 a 1023</strong>?</p></div>
+        <div class="card verde"><span class="icone">➗</span><p>Por que dividimos a leitura em <strong>8 níveis</strong>?</p></div>
+        <div class="card roxo"><span class="icone">4️⃣</span><p>O que mudaria se usássemos <strong>4 LEDs</strong> em vez de 8?</p></div>
+        <div class="card vermelho"><span class="icone">🌡️</span><p>O que mudaria se usássemos um <strong>sensor</strong> (luz, temperatura) no lugar do potenciômetro?</p></div>
+        <div class="card amarelo"><span class="icone">💬</span><p>Como você explicaria, com suas palavras, a diferença entre <strong>entrada analógica</strong> e <strong>saída digital</strong>?</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 27 — ENCERRAMENTO ============ -->
+  <section class="slide capa" data-titulo="Encerramento">
+    <div class="slide-inner">
+      <span class="badge">🎉 Muito bem!</span>
+      <h1>Você construiu uma barra de luz!</h1>
+      <p class="subtitulo">Hoje você ligou um circuito, leu um sinal analógico e controlou 8 saídas digitais — exatamente como funcionam muitos aparelhos de verdade.</p>
+      <p class="meta">📄 Não esqueça o dever de casa! Bons estudos. 🤖✨</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ NAVEGAÇÃO ============ -->
+<div class="dica-teclado">Use ← → ou as setas do teclado · F = tela cheia</div>
+<nav class="nav">
+  <button id="btnPrev">◀ Anterior</button>
+  <div class="centro-nav">
+    <span class="titulo-curto" id="tituloSlide">Capa</span>
+    <span class="contador"><span id="atual">1</span> / <span id="total">27</span></span>
+  </div>
+  <button id="btnNext">Próximo ▶</button>
+</nav>
+
+<script src="script.js"></script>
+</body>
+</html>
